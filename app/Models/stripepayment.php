@@ -11,6 +11,13 @@ class stripepayment extends Model
 
     protected $fillable = [
         'user_id',
-        'email'
+        'email',
+        'payment_id',
+        'reference_code',
+        'payment_method',
+        'subscriptionplan',
+        'currency',
+        'dateofpayment',
+        'payment_type'
     ] ;
 }

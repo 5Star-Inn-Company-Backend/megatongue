@@ -45,4 +45,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('stripePayment', [PaymentController::class, 'stripePayment']);
     Route::post('paystackpayment', [PaymentController::class, 'paystackpayment']);
     Route::post('handlePaymentCallback', [PaymentController::class,'handlePaymentCallback']);
+
+    Route::get('getpaymentmethod', [PaymentController::class, 'getpaymentmethod']);
+    Route::get('getsubscribplan', [PaymentController::class, 'getsubscribplan']);
 });
