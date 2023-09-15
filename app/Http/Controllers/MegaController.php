@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\faq;
 use App\Models\User;
+use App\Models\review;
 use App\Models\history;
 use App\Models\pricing;
 use Illuminate\Support\Str;
@@ -113,5 +115,104 @@ class MegaController extends Controller
         }
 
     }
+
+    //for reviews
+
+    public function addreview(Request $request)
+    {
+        $add = review::create([
+            "user_id" => Auth::user()->id,
+            'review' => $request->review,
+        ]);
+
+        if($add)
+        {
+            return response()->json([
+                "status" => true,
+                "message" => "Added review",
+            ],200);
+        }else{
+            return response()->json([
+                "status" => false,
+                "message" => "error",
+            ],422);
+        }
+    }
+
+    public function getreviews(Request $request)
+    {
+        $getreview = review::all();
+        if($getreview)
+        {
+            return response()->json([
+                "status" => true,
+                "message" =>  $getreview,
+            ],200);
+        }else{
+            return response()->json([
+                "status" => 200,
+                "message" => "No Review yet!",
+            ],200);
+        }
+    }
+
+    //for api 
+    public function getapiusage(Request $request)
+    {
+        $userId = Auth::user()->id;
+        $apiusage = history::where('user_id', $userId)->get();
+    
+        if($apiusage->count() > 0)
+        {
+            return response()->json([
+                "status" => true,
+                "message" => $apiusage->count(),
+                "date" => $apiusage->first()->created_at,
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => true,
+                "message" => "You have not made any request in the last month!",
+            ], 200);
+        }
+    }
+    
+
+    public function getapikey()
+    {
+        $userkey = User::find(Auth::user()->id)->first();
+        if($userkey)
+        {
+            return response()->json([
+                            "status" => true,
+                            "message" =>  $userkey->api_key,
+                         ],200);
+        }else{
+            return response()->json([
+                "status" => true,
+                "message" => "You do not have Api Access key, You can request for it!",
+            ],200);
+        }
+    }
+
+    public function getfaq()
+    {
+        $faqs = faq::all();
+        
+        if($faqs) 
+        {
+            return response()->json([
+                "status" => true,
+                "message" =>  $faqs,
+            ],200);
+        }else{
+            return response()->json([
+                "status" => 200,
+                "message" => "No Faq yet!",
+            ],200);
+        }
+    }
+
+  
 
 }

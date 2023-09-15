@@ -1,9 +1,11 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MegaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +32,17 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('apikey', [MegaController::class, 'apikey']);
     Route::post('pricing', [MegaController::class, 'pricing']);
     Route::post("translator", [MegaController::class, 'translator']);
+    Route::post('addreview', [MegaController::class, "addreview"]);
+    Route::get('getreviews', [MegaController::class, 'getreviews']);
+    Route::get('getapiusage', [MegaController::class, 'getapiusage']);
+    Route::get('getapikey', [MegaController::class, 'getapikey']);
+    Route::get('getfaq', [MegaController::class, 'getfaq']);
+    Route::get('getuserinfo', [UserController::class, 'getuserinfo']);
+    Route::post('updateuserinfo', [UserController::class, 'updateuserinfo']);
+
+    //for payment integration
+
+    Route::post('stripePayment', [PaymentController::class, 'stripePayment']);
+    Route::post('paystackpayment', [PaymentController::class, 'paystackpayment']);
+    Route::post('handlePaymentCallback', [PaymentController::class,'handlePaymentCallback']);
 });

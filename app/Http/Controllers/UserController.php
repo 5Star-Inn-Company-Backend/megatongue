@@ -17,7 +17,8 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'firstname' => 'required',
+            'lastname' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:6'
         ]);
@@ -28,7 +29,8 @@ class UserController extends Controller
         }
 
         $create = User::create([
-            'name' => $request->name,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
@@ -169,4 +171,66 @@ class UserController extends Controller
         return "<h1>Your Password Reset was Successful!</h1>";
 
     }
+
+      //for user info
+
+      public function getuserinfo()
+      {
+          $userinfo = User::find(Auth::user()->id)->get();
+  
+          foreach($userinfo as $userinfos)    {
+              $notifi = [];
+  
+              if($userinfos->notification == 1)
+              {
+                  $notifi[] = "subscribe";
+              }else{
+                  $notifi[] = "unsubscribe";
+              }
+          }
+  
+          if($userinfos)
+          {
+              return response()->json([
+                  "status" => true,
+                  "name" =>  $userinfos->name,
+                  "email" => $userinfos->email,
+                  "company" => $userinfos->company,
+                  "notification" => $notifi
+              ]);
+          }
+      }
+
+      public function updateuserinfo(Request $request)
+      {
+          $userId = Auth::user()->id;
+          $updateuser = User::find($userId);
+
+          $fillableCoulums = [
+              'firstname', 'lastname', 'email', 'address',
+              'phone', 'city', 'state', 'company',
+              'website', 'notification', 'recieve_invoice'
+          ];
+      
+          // Loop through the fillable fields and update them if present in the request
+          foreach ($fillableCoulums as $coulum) {
+              if ($request->has($coulum)) {
+                  $updateuser->$coulum = $request->$coulum;
+              }
+          }
+      
+          if ($updateuser->save()) {
+              return response()->json([
+                  "status" => true,
+                  "message" => "Profile has been updated successfully"
+              ], 200);
+          } else {
+              return response()->json([
+                  "status" => false,
+                  "message" => "Unable to update profile"
+              ], 422);
+          }
+      }
+      
+      
 }
