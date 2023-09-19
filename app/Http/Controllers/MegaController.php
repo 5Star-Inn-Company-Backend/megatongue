@@ -49,6 +49,42 @@ class MegaController extends Controller
         ]);
     }
 
+
+
+    /**
+ * @OA\Post(
+ *     path="/translator",
+ *     summary="Translate Text",
+ *     description="Translate text from one language to another.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(property="q", type="string", description="Text to be translated."),
+ *             @OA\Property(property="source", type="string", description="Source language code."),
+ *             @OA\Property(property="target", type="string", description="Target language code."),
+ *             @OA\Property(property="format", type="string", description="Translation format.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful translation.",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status_code", type="integer", example=200),
+ *             @OA\Property(property="message", type="string", example="Translation successful"),
+ *             @OA\Property(property="translated_text", type="string", example="Translated text goes here")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Error in translation.",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status_code", type="integer", example=422),
+ *             @OA\Property(property="message", type="string", example="Translation error")
+ *         )
+ *     )
+ * )
+ */
+
     public function translator(Request $request)
     {
         $data = array(
@@ -155,6 +191,21 @@ class MegaController extends Controller
             ],200);
         }
     }
+/**
+ * @OA\Get(
+ *     path="/getapiusage",
+ *     summary="Get API Usage History",
+ *     description="Retrieve the history of API usage (entire data in the history table).",
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation.",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status_code", type="integer", example=200),
+ *             @OA\Property(property="message", type="string", example="API usage history retrieved successfully")
+ *         )
+ *     )
+ * )
+ */
 
     //for api 
     public function getapiusage(Request $request)
