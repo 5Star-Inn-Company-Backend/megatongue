@@ -114,6 +114,72 @@
                     }
                 }
             }
-        }
+        },
+
+        "/translatefile": {
+            "post": {
+              "summary": "Translate and save CSV file content",
+              "description": "Translate the content of a CSV file and save it to the database.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "multipart/form-data": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "csvfile": {
+                          "type": "string",
+                          "format": "binary"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "CSV file translated and saved successfully",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "statusCode": {
+                            "type": "integer",
+                            "example": 200
+                          },
+                          "message": {
+                            "type": "string",
+                            "example": "CSV file translated and saved."
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Unprocessable Entity",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "statusCode": {
+                            "type": "integer",
+                            "example": 422
+                          },
+                          "message": {
+                            "type": "string",
+                            "example": "Error message if applicable"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          
     }
 }
