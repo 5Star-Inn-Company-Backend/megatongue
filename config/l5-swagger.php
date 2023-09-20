@@ -1,3 +1,7 @@
+
+
+
+
 <?php
 
 return [
@@ -40,7 +44,7 @@ return [
                 */
                 'annotations' => [
                     base_path('app'),
-                ],
+                ], 
 
             ],
         ],
@@ -294,7 +298,7 @@ return [
          * Constants which can be used in annotations
          */
         'constants' => [
-            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://app/Http/Controllers'),
+            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://my-default-host.com'),
         ],
     ],
 ];

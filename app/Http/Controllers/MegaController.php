@@ -10,6 +10,11 @@ use App\Models\pricing;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(title="MegaTongue Api Documentation", version="1.0.0")
+ */
 
 class MegaController extends Controller
 {
@@ -48,8 +53,6 @@ class MegaController extends Controller
             "message" => "Price has been updated successfully",
         ]);
     }
-
-
 
     /**
  * @OA\Post(
