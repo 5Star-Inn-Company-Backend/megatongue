@@ -90,12 +90,17 @@ class MegaController extends Controller
 
     public function translator(Request $request)
     {
+        $request->validate([
+            "apikey" => "required"
+        ]);
         $data = array(
             "q" => $request->q,
             "source" => $request->source,
             "target" => $request->target,
             "format" => $request->format
         );
+
+
 
         $json_data = json_encode($data);
 
@@ -125,31 +130,40 @@ class MegaController extends Controller
         $decoded_response = json_decode($response, true);
         // echo $json_decode["translatedText"];
 
+        //confirming if the apikey provide exists
+        $userkey = new User;
+        if ($request->apikey !== null || $request->apikey == $userkey->api_key) {
 
-        // Check if the decoded_response contains the 'translatedText' key
-        if (isset($decoded_response['translatedText'])) {
-            $translated_text = $decoded_response['translatedText'];
-        } else {
-            $translated_text = 'Translation not available.';
-        }
+            // Check if the decoded_response contains the 'translatedText' key
+            if (isset($decoded_response['translatedText'])) {
+                $translated_text = $decoded_response['translatedText'];
+            } else {
+                $translated_text = 'Translation not available.';
+            }
 
-        $history = new history;
-        $history->user_id = Auth::user()->id;
-        $history->text = $request->q;
-        $history->source_language = $request->source;
-        $history->destination_language = $request->target;
-        $history->format = $request->format;
-        $history->response = $translated_text;
-        $history->save();
-        if ($history->save()) {
-            return response()->json([
-                "status code" => 200,
-                "message" => $translated_text
-            ]);
+            $history = new history;
+            // $history->user_id = Auth::user()->id;
+            $history->text = $request->q;
+            $history->source_language = $request->source;
+            $history->destination_language = $request->target;
+            $history->format = $request->format;
+            $history->response = $translated_text;
+            $history->save();
+            if ($history->save()) {
+                return response()->json([
+                    "status code" => 200,
+                    "message" => $translated_text
+                ]);
+            } else {
+                return response()->json([
+                    "status code" => 422,
+                    "message" => "error",
+                ]);
+            }
         } else {
             return response()->json([
                 "status code" => 422,
-                "message" => "error",
+                "message" => "kindly provid your Api key to proceed"
             ]);
         }
     }
@@ -167,47 +181,48 @@ class MegaController extends Controller
     }
 
     /**
- * @OA\Post(
- *     path="/api/translatefile",
- *     summary="Translate and save CSV file content",
- *     tags={"Translation"},
- *     @OA\RequestBody(
- *         description="CSV File to Translate",
- *         required=true,
- *         @OA\MediaType(
- *             mediaType="multipart/form-data",
- *             @OA\Schema(
- *                 @OA\Property(
- *                     property="csvfile",
- *                     description="CSV file to translate",
- *                     type="file",
- *                 ),
- *             ),
- *         ),
- *     ),
- *     @OA\Response(
- *         response="200",
- *         description="CSV file translated and saved successfully",
- *         @OA\JsonContent(
- *             @OA\Property(property="statusCode", type="integer", example=200),
- *             @OA\Property(property="message", type="string", example="CSV file translated and saved."),
- *         ),
- *     ),
- *     @OA\Response(
- *         response="422",
- *         description="Unprocessable Entity",
- *         @OA\JsonContent(
- *             @OA\Property(property="statusCode", type="integer", example=422),
- *             @OA\Property(property="message", type="string", example="Error message if applicable"),
- *         ),
- *     ),
- * )
- */
+     * @OA\Post(
+     *     path="/api/translatefile",
+     *     summary="Translate and save CSV file content",
+     *     tags={"Translation"},
+     *     @OA\RequestBody(
+     *         description="CSV File to Translate",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="csvfile",
+     *                     description="CSV file to translate",
+     *                     type="file",
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="CSV file translated and saved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="statusCode", type="integer", example=200),
+     *             @OA\Property(property="message", type="string", example="CSV file translated and saved."),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response="422",
+     *         description="Unprocessable Entity",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="statusCode", type="integer", example=422),
+     *             @OA\Property(property="message", type="string", example="Error message if applicable"),
+     *         ),
+     *     ),
+     * )
+     */
 
     public function translatefile(Request $request)
     {
         $request->validate([
             'csvfile' => 'required',
+            'apikey' => 'required',
         ]);
 
         if ($request->hasfile('csvfile')) {
@@ -227,11 +242,11 @@ class MegaController extends Controller
                     "target" => $values[2],
                     "format" => $values[3]
                 );
-        
+
                 $json_data = json_encode($filedata);
-        
+
                 $curl = curl_init();
-        
+
                 curl_setopt_array($curl, array(
                     CURLOPT_URL => 'http://translator.cheapmailing.com.ng/translate',
                     CURLOPT_RETURNTRANSFER => true,
@@ -247,45 +262,54 @@ class MegaController extends Controller
                         'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
                     ),
                 ));
-        
+
                 $response = curl_exec($curl);
-        
+
                 curl_close($curl);
-        
+
                 // echo $response;
                 $decoded_response = json_decode($response, true);
                 // echo $json_decode["translatedText"];
-        
-        
-                // Check if the decoded_response contains the 'translatedText' key
-                if (isset($decoded_response['translatedText'])) {
-                    $translated_text = $decoded_response['translatedText'];
-                } else {
-                    $translated_text = 'Translation not available.';
+
+                $userkey = new User;
+                if ($request->apikey !== null || $request->apikey == $userkey->api_key) {
+                    // Check if the decoded_response contains the 'translatedText' key
+                    if (isset($decoded_response['translatedText'])) {
+                        $translated_text = $decoded_response['translatedText'];
+                    } else {
+                        $translated_text = 'Translation not available.';
+                    }
+
+                    $data = new history;
+                    //$data->user_id = Auth::user()->id;
+                    $data->text = $values[0];
+                    $data->source_language = $values[1];
+                    $data->destination_language = $values[2];
+                    $data->format = $values[3];
+                    $data->response = $translated_text;
+
+                    $data->save();
+
+                    if ($data->save()) {
+                        return response()->json([
+                            "status code" => 200,
+                            "message" => $translated_text
+                        ]);
+                    } else {
+                        return response()->json([
+                            "status code" => 422,
+                            "message" => "error",
+                        ]);
+                    }
+                }else {
+                    return response()->json([
+                        "status code" => 422,
+                        "message" => "kindly provid your Api key to proceed"
+                    ]);
                 }
-
-                $data = new history;
-                $data->user_id = Auth::user()->id;
-                $data->text = $values[0];
-                $data->source_language = $values[1];
-                $data->destination_language = $values[2];
-                $data->format = $values[3];
-                $data->response = $translated_text;
-
-                $data->save();
             }
 
-            if ($data->save()) {
-                return response()->json([
-                    "status code" => 200,
-                    "message" => $translated_text
-                ]);
-            } else {
-                return response()->json([
-                    "status code" => 422,
-                    "message" => "error",
-                ]);
-            }
+            
         }
     }
 

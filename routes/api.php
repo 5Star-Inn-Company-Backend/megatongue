@@ -22,6 +22,8 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('forgotpass', [UserController::class, 'forgotPassword']);
 Route::get('resetpass', [UserController::class, 'resetpass']);
 Route::post('updatepassword', [UserController::class, 'updatepass']);
+Route::post("translator", [MegaController::class, 'translator']);
+Route::post('translatefile', [MegaController::class, 'translatefile']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -31,8 +33,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('apikey', [MegaController::class, 'apikey']);
     Route::post('pricing', [MegaController::class, 'pricing']);
-    Route::post("translator", [MegaController::class, 'translator']);
-    Route::post('translatefile', [MegaController::class, 'translatefile']);
     Route::post('addreview', [MegaController::class, "addreview"]);
     Route::get('getreviews', [MegaController::class, 'getreviews']);
     Route::get('getapiusage', [MegaController::class, 'getapiusage']);
