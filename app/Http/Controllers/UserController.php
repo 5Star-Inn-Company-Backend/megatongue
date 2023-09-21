@@ -193,7 +193,8 @@ class UserController extends Controller
           {
               return response()->json([
                   "status" => true,
-                  "name" =>  $userinfos->name,
+                  "firstname" =>  $userinfos->firstname,
+                  "lastname" => $userinfos->lastname,
                   "email" => $userinfos->email,
                   "company" => $userinfos->company,
                   "notification" => $notifi

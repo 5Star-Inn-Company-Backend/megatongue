@@ -389,11 +389,14 @@ class MegaController extends Controller
 
     public function getapikey()
     {
-        $userkey = User::find(Auth::user()->id)->first();
-        if ($userkey) {
+        $userkey = User::find(Auth::user()->id)->get();
+        foreach($userkey as $apikey) {
+            
+        }
+        if ($apikey) {
             return response()->json([
                 "status" => true,
-                "message" =>  $userkey->api_key,
+                "message" =>  $apikey->api_key,
             ], 200);
         } else {
             return response()->json([
@@ -401,6 +404,7 @@ class MegaController extends Controller
                 "message" => "You do not have Api Access key, You can request for it!",
             ], 200);
         }
+       
     }
 
     public function getfaq()
