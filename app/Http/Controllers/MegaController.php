@@ -90,17 +90,34 @@ class MegaController extends Controller
 
     public function translator(Request $request)
     {
-        $request->validate([
-            "apikey" => "required"
-        ]);
+
+        // Get the API key from the request header or authorization bearer token
+        $apiKey = $request->header('apikey'); // Adjust the header name as needed
+
+        if (empty($apiKey)) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Please provide your API key in the header or as a bearer token."
+            ]);
+        }
+
+        // Verify the API key against the keys stored in the users' table
+        $user = User::where('api_key', $apiKey)->get();
+        foreach ($user as $users) {
+            if (!$users) {
+                return response()->json([
+                    "status code" => 401,
+                    "message" => "Invalid API key."
+                ]);
+            }
+        }
+
         $data = array(
             "q" => $request->q,
             "source" => $request->source,
             "target" => $request->target,
             "format" => $request->format
         );
-
-
 
         $json_data = json_encode($data);
 
@@ -130,40 +147,33 @@ class MegaController extends Controller
         $decoded_response = json_decode($response, true);
         // echo $json_decode["translatedText"];
 
-        //confirming if the apikey provide exists
-        $userkey = new User;
-        if ($request->apikey !== null || $request->apikey == $userkey->api_key) {
+ 
+        // Check if the decoded_response contains the 'translatedText' key
+        if (isset($decoded_response['translatedText'])) {
+            $translated_text = $decoded_response['translatedText'];
+        } else {
+            $translated_text = 'Translation not available.';
+        }
 
-            // Check if the decoded_response contains the 'translatedText' key
-            if (isset($decoded_response['translatedText'])) {
-                $translated_text = $decoded_response['translatedText'];
-            } else {
-                $translated_text = 'Translation not available.';
-            }
+        $history = new history;
+        $history->text = $request->q;
+        $history->source_language = $request->source;
+        $history->destination_language = $request->target;
+        $history->format = $request->format;
+        $history->response = $translated_text;
 
-            $history = new history;
-            // $history->user_id = Auth::user()->id;
-            $history->text = $request->q;
-            $history->source_language = $request->source;
-            $history->destination_language = $request->target;
-            $history->format = $request->format;
-            $history->response = $translated_text;
-            $history->save();
-            if ($history->save()) {
-                return response()->json([
-                    "status code" => 200,
-                    "message" => $translated_text
-                ]);
-            } else {
-                return response()->json([
-                    "status code" => 422,
-                    "message" => "error",
-                ]);
-            }
+        $users->history()->save($history);
+
+        if ($users->history()->save($history)) {
+
+            return response()->json([
+                "status code" => 200,
+                "message" => $translated_text
+            ]);
         } else {
             return response()->json([
                 "status code" => 422,
-                "message" => "kindly provid your Api key to proceed"
+                "message" => "error",
             ]);
         }
     }
@@ -220,22 +230,39 @@ class MegaController extends Controller
 
     public function translatefile(Request $request)
     {
+        // Get the API key from the request header or authorization bearer token
+        $apiKey = $request->header('apikey'); // Adjust the header name as needed
+
+        if (empty($apiKey)) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Please provide your API key in the header or as a bearer token."
+            ]);
+        }
+
+        // Verify the API key against the keys stored in the users' table
+        $user = User::where('api_key', $apiKey)->get();
+        foreach ($user as $users) {
+            if (!$users) {
+                return response()->json([
+                    "status code" => 401,
+                    "message" => "Invalid API key."
+                ]);
+            }
+        }
+
+
         $request->validate([
             'csvfile' => 'required',
-            'apikey' => 'required',
         ]);
 
         if ($request->hasfile('csvfile')) {
-
             $csv = file_get_contents($request->csvfile);
-
             $array = array_map('str_getcsv', explode(PHP_EOL, $csv));
-
             $validate = $this->validateArrayData($array);
 
             // Save the data to the database
             foreach (array_slice($validate, 1) as $values) {
-
                 $filedata = array(
                     "q" => $values[0],
                     "source" => $values[1],
@@ -267,51 +294,32 @@ class MegaController extends Controller
 
                 curl_close($curl);
 
-                // echo $response;
                 $decoded_response = json_decode($response, true);
-                // echo $json_decode["translatedText"];
 
-                $userkey = new User;
-                if ($request->apikey !== null || $request->apikey == $userkey->api_key) {
-                    // Check if the decoded_response contains the 'translatedText' key
-                    if (isset($decoded_response['translatedText'])) {
-                        $translated_text = $decoded_response['translatedText'];
-                    } else {
-                        $translated_text = 'Translation not available.';
-                    }
-
-                    $data = new history;
-                    //$data->user_id = Auth::user()->id;
-                    $data->text = $values[0];
-                    $data->source_language = $values[1];
-                    $data->destination_language = $values[2];
-                    $data->format = $values[3];
-                    $data->response = $translated_text;
-
-                    $data->save();
-
-                    if ($data->save()) {
-                        return response()->json([
-                            "status code" => 200,
-                            "message" => $translated_text
-                        ]);
-                    } else {
-                        return response()->json([
-                            "status code" => 422,
-                            "message" => "error",
-                        ]);
-                    }
-                }else {
-                    return response()->json([
-                        "status code" => 422,
-                        "message" => "kindly provid your Api key to proceed"
-                    ]);
+                // Check if the decoded_response contains the 'translatedText' key
+                if (isset($decoded_response['translatedText'])) {
+                    $translated_text = $decoded_response['translatedText'];
+                } else {
+                    $translated_text = 'Translation not available.';
                 }
-            }
 
-            
+                $data = new history;
+                $data->text = $values[0];
+                $data->source_language = $values[1];
+                $data->destination_language = $values[2];
+                $data->format = $values[3];
+                $data->response = $translated_text;
+
+                $users->history()->save($data);
+
+                return response()->json([
+                    "status code" => 200,
+                    "message" => $translated_text
+                ]);
+            }
         }
     }
+
 
     //for reviews
 
@@ -390,8 +398,7 @@ class MegaController extends Controller
     public function getapikey()
     {
         $userkey = User::find(Auth::user()->id)->get();
-        foreach($userkey as $apikey) {
-            
+        foreach ($userkey as $apikey) {
         }
         if ($apikey) {
             return response()->json([
@@ -404,7 +411,6 @@ class MegaController extends Controller
                 "message" => "You do not have Api Access key, You can request for it!",
             ], 200);
         }
-       
     }
 
     public function getfaq()
