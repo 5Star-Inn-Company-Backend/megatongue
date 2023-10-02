@@ -92,14 +92,24 @@ class PaymentController extends Controller
 
     public function paystackpayment(Request $request)
     {
+        // $input = $request->amount * 1;
+        if($request->amount == 'silver'){
+            $amount = 2400 * 1;
+        }elseif($request->amount == 'gold'){
+            $amount = 4800 * 1;
+        }else{
+            $amount = 0 * 1;
+        }
+        
         // Read the Paystack secret key from .env
         $secretKey = env('PAYSTACK_SECRET_KEY');
 
         $url = "https://api.paystack.co/transaction/initialize";
 
+      
         $fields = [
             'email' => Auth::user()->email,
-            'amount' => $request->amount,
+            'amount' => $amount,
         ];
 
         $fields_string = http_build_query($fields);
