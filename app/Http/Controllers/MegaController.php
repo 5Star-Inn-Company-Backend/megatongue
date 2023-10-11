@@ -102,15 +102,15 @@ class MegaController extends Controller
         }
 
         // Verify the API key against the keys stored in the users' table
-        $user = User::where('api_key', $apiKey)->get();
-        foreach ($user as $users) {
-            if (!$users) {
+        $user = User::where('api_key', $apiKey)->first();
+        // foreach ($user as $users) {
+            if (!$user) {
                 return response()->json([
                     "status code" => 401,
                     "message" => "Invalid API key."
                 ]);
             }
-        }
+        // }
 
         $data = array(
             "q" => $request->q,
@@ -162,9 +162,9 @@ class MegaController extends Controller
         $history->format = $request->format;
         $history->response = $translated_text;
 
-        $users->history()->save($history);
+        $user->history()->save($history);
 
-        if ($users->history()->save($history)) {
+        if ($user->history()->save($history)) {
 
             return response()->json([
                 "status code" => 200,
@@ -241,15 +241,15 @@ class MegaController extends Controller
         }
 
         // Verify the API key against the keys stored in the users' table
-        $user = User::where('api_key', $apiKey)->get();
-        foreach ($user as $users) {
-            if (!$users) {
+        $user = User::where('api_key', $apiKey)->first();
+        // foreach ($user as $users) {
+            if (!$user) {
                 return response()->json([
                     "status code" => 401,
                     "message" => "Invalid API key."
                 ]);
             }
-        }
+        // }
 
 
         $request->validate([
@@ -310,7 +310,7 @@ class MegaController extends Controller
                 $data->format = $values[3];
                 $data->response = $translated_text;
 
-                $users->history()->save($data);
+                $user->history()->save($data);
 
                 return response()->json([
                     "status code" => 200,
