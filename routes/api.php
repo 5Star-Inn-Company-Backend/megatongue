@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Events\TranslationEvent;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MegaController;
 use App\Http\Controllers\UserController;
@@ -24,6 +25,11 @@ Route::get('resetpass', [UserController::class, 'resetpass']);
 Route::post('updatepassword', [UserController::class, 'updatepass']);
 Route::post("translator", [MegaController::class, 'translator']);
 Route::post('translatefile', [MegaController::class, 'translatefile']);
+Route::post('/translatetext', function (Request $request) {
+    event(new TranslationEvent($request->input('text')));
+
+    return response()->json(['message' => 'Text sent for translation']);
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
