@@ -16,12 +16,11 @@ use Illuminate\Support\Facades\Validator;
 /**
  * @OA\Info(title="MegaTongue Api Documentation", version="1.0.0")
  */
-
 class MegaController extends Controller
 {
     public function apikey(Request $request)
     {
-        $user =  User::find(Auth::user()->id);
+        $user = User::find(Auth::user()->id);
         $apikey = Str::random(40);
         if ($user) {
             $user->api_key = $apikey;
@@ -89,106 +88,106 @@ class MegaController extends Controller
      * )
      */
 
-     public function translator(Request $request)
-     {
-         // Get the API key from the request header or authorization bearer token
-         $apiKey = $request->header('apikey'); // Adjust the header name as needed
-     
-         if (empty($apiKey)) {
-             return response()->json([
-                 "status code" => 422,
-                 "message" => "Please provide your API key in the header or as a bearer token."
-             ]);
-         }
-     
-         // Verify the API key against the keys stored in the users' table
-         $user = User::where('api_key', $apiKey)->first();
-     
-         if (!$user) {
-             return response()->json([
-                 "status code" => 401,
-                 "message" => "Invalid API key."
-             ]);
-         }
-     
-         // Validate the request data
-         $validator = Validator::make($request->all(), [
-             'q' => 'required',
-             'source' => 'required',
-             'target' => 'required',
-             'format' => 'required',
-         ]);
-     
-         if ($validator->fails()) {
-             return response()->json([
-                 "status code" => 422,
-                 "message" => "Validation failed",
-                 "errors" => $validator->errors(),
-             ]);
-         }
-     
-         $data = array(
-             "q" => $request->q,
-             "source" => $request->source,
-             "target" => $request->target,
-             "format" => $request->format
-         );
-     
-         $json_data = json_encode($data);
-     
-         $curl = curl_init();
-     
-         curl_setopt_array($curl, array(
-             CURLOPT_URL => 'http://translator.cheapmailing.com.ng/translate',
-             CURLOPT_RETURNTRANSFER => true,
-             CURLOPT_ENCODING => '',
-             CURLOPT_MAXREDIRS => 10,
-             CURLOPT_TIMEOUT => 0,
-             CURLOPT_FOLLOWLOCATION => true,
-             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-             CURLOPT_CUSTOMREQUEST => 'POST',
-             CURLOPT_POSTFIELDS => $json_data,
-             CURLOPT_HTTPHEADER => array(
-                 'Content-Type: application/json',
-                 'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
-             ),
-         ));
-     
-         $response = curl_exec($curl);
-     
-         curl_close($curl);
-     
-         $decoded_response = json_decode($response, true);
-     
-         // Check if the decoded_response contains the 'translatedText' key
-         if (isset($decoded_response['translatedText'])) {
-             $translated_text = $decoded_response['translatedText'];
-         } else {
-             $translated_text = 'Translation not available.';
-         }
-     
-         $history = new history;
-         $history->text = $request->q;
-         $history->source_language = $request->source;
-         $history->destination_language = $request->target;
-         $history->format = $request->format;
-         $history->response = $translated_text;
-     
-         $user->history()->save($history);
-     
-         if ($user->history()->save($history)) {
-             return response()->json([
-                 "status code" => 200,
-                 "message" => $translated_text
-             ]);
-         } else {
-             return response()->json([
-                 "status code" => 422,
-                 "message" => "Error",
-             ]);
-         }
-     }
-     
+    public function translator(Request $request)
+    {
+        // Get the API key from the request header or authorization bearer token
+        $apiKey = $request->header('apikey'); // Adjust the header name as needed
+
+        if (empty($apiKey)) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Please provide your API key in the header or as a bearer token."
+            ]);
+        }
+
+        // Verify the API key against the keys stored in the users' table
+        $user = User::where('api_key', $apiKey)->first();
+
+        if (!$user) {
+            return response()->json([
+                "status code" => 401,
+                "message" => "Invalid API key."
+            ]);
+        }
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'q' => 'required',
+            'source' => 'required',
+            'target' => 'required',
+            'format' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Validation failed",
+                "errors" => $validator->errors(),
+            ]);
+        }
+
+        $data = array(
+            "q" => $request->q,
+            "source" => $request->source,
+            "target" => $request->target,
+            "format" => $request->format
+        );
+
+        $json_data = json_encode($data);
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSLATOR_BASEURL', 'http://translator.cheapmailing.com.ng') . '/translate',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $json_data,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $decoded_response = json_decode($response, true);
+
+        // Check if the decoded_response contains the 'translatedText' key
+        if (isset($decoded_response['translatedText'])) {
+            $translated_text = $decoded_response['translatedText'];
+        } else {
+            $translated_text = 'Translation not available.';
+        }
+
+        $history = new history;
+        $history->text = $request->q;
+        $history->source_language = $request->source;
+        $history->destination_language = $request->target;
+        $history->format = $request->format;
+        $history->response = $translated_text;
+
+//         $user->history()->save($history);
+
+        if ($user->history()->save($history)) {
+            return response()->json([
+                "status code" => 200,
+                "message" => $translated_text
+            ]);
+        } else {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Error",
+            ]);
+        }
+    }
+
 
     public function validateArrayData($data)
     {
@@ -240,135 +239,120 @@ class MegaController extends Controller
      * )
      */
 
-     public function translatefile(Request $request)
-     {
-         // Get the API key from the request header or authorization bearer token
-         $apiKey = $request->header('apikey'); // Adjust the header name as needed
-     
-         if (empty($apiKey)) {
-             return response()->json([
-                 "status code" => 422,
-                 "message" => "Please provide your API key in the header or as a bearer token."
-             ]);
-         }
-     
-         // Verify the API key against the keys stored in the users' table
-         $user = User::where('api_key', $apiKey)->first();
-     
-         if (!$user) {
-             return response()->json([
-                 "status code" => 401,
-                 "message" => "Invalid API key."
-             ]);
-         }
-     
-         $request->validate([
-             'csvfile' => 'required',
-         ]);
-     
-         if ($request->hasfile('csvfile')) {
-             $csv = file_get_contents($request->csvfile);
-             $array = array_map('str_getcsv', explode(PHP_EOL, $csv));
-             $validate = $this->validateArrayData($array);
-     
-             $errorMessages = [];
-     
-             // Save the data to the database
-             $successMessages = [];
-     
-             foreach (array_slice($validate, 1) as $values) {
-                 $fieldErrors = [];
-     
-                 if (empty($values[0])) {
-                     $fieldErrors[] = "The value in the 'q' field is empty.";
-                 }
-     
-                 if (empty($values[1])) {
-                     $fieldErrors[] = "The value in the 'source' field is empty.";
-                 }
-     
-                 if (empty($values[2])) {
-                     $fieldErrors[] = "The value in the 'target' field is empty.";
-                 }
-     
-                 if (empty($values[3])) {
-                     $fieldErrors[] = "The value in the 'format' field is empty.";
-                 }
-     
-                 if (!empty($fieldErrors)) {
-                     // If there are errors for this record, collect them.
-                     $errorMessages[] = [
-                         'row' => $values,
-                         'errors' => $fieldErrors,
-                     ];
-                 } else {
-                     $filedata = [
-                         "q" => $values[0],
-                         "source" => $values[1],
-                         "target" => $values[2],
-                         "format" => $values[3]
-                     ];
-     
-                     $json_data = json_encode($filedata);
-     
-                     $curl = curl_init();
-     
-                     curl_setopt_array($curl, array(
-                         CURLOPT_URL => 'http://translator.cheapmailing.com.ng/translate',
-                         CURLOPT_RETURNTRANSFER => true,
-                         CURLOPT_ENCODING => '',
-                         CURLOPT_MAXREDIRS => 10,
-                         CURLOPT_TIMEOUT => 0,
-                         CURLOPT_FOLLOWLOCATION => true,
-                         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                         CURLOPT_CUSTOMREQUEST => 'POST',
-                         CURLOPT_POSTFIELDS => $json_data,
-                         CURLOPT_HTTPHEADER => array(
-                             'Content-Type: application/json',
-                             'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
-                         ),
-                     ));
-     
-                     $response = curl_exec($curl);
-     
-                     curl_close($curl);
-     
-                     $decoded_response = json_decode($response, true);
-     
-                     // Check if the decoded_response contains the 'translatedText' key
-                     if (isset($decoded_response['translatedText'])) {
-                         $translated_text = $decoded_response['translatedText'];
-                     } else {
-                         $translated_text = 'Translation not available.';
-                     }
-     
-                     $data = new history;
-                     $data->text = $values[0];
-                     $data->source_language = $values[1];
-                     $data->destination_language = $values[2];
-                     $data->format = $values[3];
-                     $data->response = $translated_text;
-     
-                     $user->history()->save($data);
-     
-                     $successMessages[] = $translated_text;
-                 }
-             }
-     
-             if (!empty($errorMessages)) {
-                 return response()->json([
-                     "status code" => 422,
-                     "error_messages" => $errorMessages,
-                 ]);
-             }
-     
-             return response()->json([
-                 "status code" => 200,
-                 "success_messages" => $successMessages,
-             ]);
-         }
-     }
-     
+    public function translatefile(Request $request)
+    {
+        // Get the API key from the request header or authorization bearer token
+        $apiKey = $request->header('apikey'); // Adjust the header name as needed
+
+        if (empty($apiKey)) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Please provide your API key in the header or as a bearer token."
+            ]);
+        }
+
+        // Verify the API key against the keys stored in the users' table
+        $user = User::where('api_key', $apiKey)->first();
+
+        if (!$user) {
+            return response()->json([
+                "status code" => 401,
+                "message" => "Invalid API key."
+            ]);
+        }
+
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file',
+            'source' => 'required',
+            'target' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Validation failed",
+                "errors" => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->hasfile('file')) {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Validation failed. Kindly upload a valid file.",
+                "errors" => "Valid File required",
+            ]);
+        }
+
+        $file = $request->file('file');
+        $filePath = $file->getPathname();
+        $fileMimeType = $file->getMimeType();
+        $fileName = $file->getClientOriginalName();
+
+        $ref=rand()."_".$fileName;
+        $request->file('file')->storeAs($ref);
+
+        $filedata = [
+            "file" => new \CURLFile($filePath, $fileMimeType, $fileName),
+            "source" => $request->source,
+            "target" => $request->target
+        ];
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSLATOR_BASEURL', 'http://translator.cheapmailing.com.ng') . '/translate_file',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $filedata,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: multipart/form-data',
+                'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $decoded_response = json_decode($response, true);
+
+        // Check if the decoded_response contains the 'translatedText' key
+        if (isset($decoded_response['translatedFileUrl'])) {
+            $translated_text = file_get_contents($decoded_response['translatedFileUrl']);
+        } else {
+            $translated_text = 'Translation not available.';
+        }
+
+        $data = new history;
+        $data->text = $ref;
+        $data->source_language = $request->source;
+        $data->destination_language = $request->target;
+        $data->format = "file";
+        $data->response = $decoded_response['translatedFileUrl'];
+
+//             $user->history()->save($data);
+
+
+        if ($user->history()->save($data)) {
+            return response()->json([
+                "status code" => 200,
+                "message" => $translated_text
+            ]);
+        } else {
+            return response()->json([
+                "status code" => 422,
+                "message" => "Error",
+            ]);
+        }
+
+    }
 
 
     //for reviews
@@ -399,7 +383,7 @@ class MegaController extends Controller
         if ($getreview) {
             return response()->json([
                 "status" => true,
-                "message" =>  $getreview,
+                "message" => $getreview,
             ], 200);
         } else {
             return response()->json([
@@ -424,7 +408,7 @@ class MegaController extends Controller
      * )
      */
 
-    //for api 
+    //for api
     public function getapiusage(Request $request)
     {
         $userId = Auth::user()->id;
@@ -453,7 +437,7 @@ class MegaController extends Controller
         if ($apikey) {
             return response()->json([
                 "status" => true,
-                "message" =>  $apikey->api_key,
+                "message" => $apikey->api_key,
             ], 200);
         } else {
             return response()->json([
@@ -470,7 +454,7 @@ class MegaController extends Controller
         if ($faqs) {
             return response()->json([
                 "status" => true,
-                "message" =>  $faqs,
+                "message" => $faqs,
             ], 200);
         } else {
             return response()->json([

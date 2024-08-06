@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TranslatorController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Events\TranslationEvent;
@@ -23,13 +24,21 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('forgotpass', [UserController::class, 'forgotPassword']);
 Route::get('resetpass', [UserController::class, 'resetpass']);
 Route::post('updatepassword', [UserController::class, 'updatepass']);
+
+Route::middleware(['throttle:freeTranslation'])->group(function () {
+    Route::post("free-translator", [TranslatorController::class, 'translator']);
+    Route::post('free-translatefile', [TranslatorController::class, 'translatefile']);
+});
+
 Route::post("translator", [MegaController::class, 'translator']);
 Route::post('translatefile', [MegaController::class, 'translatefile']);
+
 Route::post('/translatetext', function (Request $request) {
     event(new TranslationEvent($request->input('text')));
 
     return response()->json(['message' => 'Text sent for translation']);
 });
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
