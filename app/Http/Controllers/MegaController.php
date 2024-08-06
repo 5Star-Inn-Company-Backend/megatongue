@@ -95,7 +95,7 @@ class MegaController extends Controller
 
         if (empty($apiKey)) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Please provide your API key in the header or as a bearer token."
             ]);
         }
@@ -105,7 +105,7 @@ class MegaController extends Controller
 
         if (!$user) {
             return response()->json([
-                "status code" => 401,
+                "status_code" => 401,
                 "message" => "Invalid API key."
             ]);
         }
@@ -120,7 +120,7 @@ class MegaController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed",
                 "errors" => $validator->errors(),
             ]);
@@ -177,12 +177,12 @@ class MegaController extends Controller
 
         if ($user->history()->save($history)) {
             return response()->json([
-                "status code" => 200,
+                "status_code" => 200,
                 "message" => $translated_text
             ]);
         } else {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Error",
             ]);
         }
@@ -246,7 +246,7 @@ class MegaController extends Controller
 
         if (empty($apiKey)) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Please provide your API key in the header or as a bearer token."
             ]);
         }
@@ -256,7 +256,7 @@ class MegaController extends Controller
 
         if (!$user) {
             return response()->json([
-                "status code" => 401,
+                "status_code" => 401,
                 "message" => "Invalid API key."
             ]);
         }
@@ -271,7 +271,7 @@ class MegaController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed",
                 "errors" => $validator->errors(),
             ]);
@@ -279,7 +279,7 @@ class MegaController extends Controller
 
         if (!$request->hasfile('file')) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed. Kindly upload a valid file.",
                 "errors" => "Valid File required",
             ]);
@@ -342,12 +342,12 @@ class MegaController extends Controller
 
         if ($user->history()->save($data)) {
             return response()->json([
-                "status code" => 200,
+                "status_code" => 200,
                 "message" => $translated_text
             ]);
         } else {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Error",
             ]);
         }

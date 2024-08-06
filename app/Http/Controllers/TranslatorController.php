@@ -22,7 +22,7 @@ class TranslatorController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed",
                 "errors" => $validator->errors(),
             ]);
@@ -80,12 +80,12 @@ class TranslatorController extends Controller
 
         if ($history->save()) {
             return response()->json([
-                "status code" => 200,
-                "message" => $translated_text
+                "status_code" => 200,
+                "message" => $translated_text,
             ]);
         } else {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Error",
             ]);
         }
@@ -103,7 +103,7 @@ class TranslatorController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed",
                 "errors" => $validator->errors(),
             ]);
@@ -111,7 +111,7 @@ class TranslatorController extends Controller
 
         if (!$request->hasfile('file')) {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Validation failed. Kindly upload a valid file.",
                 "errors" => "Valid File required",
             ]);
@@ -175,12 +175,12 @@ class TranslatorController extends Controller
 
         if ($data->save()) {
             return response()->json([
-                "status code" => 200,
+                "status_code" => 200,
                 "message" => $translated_text
             ]);
         } else {
             return response()->json([
-                "status code" => 422,
+                "status_code" => 422,
                 "message" => "Error",
             ]);
         }
