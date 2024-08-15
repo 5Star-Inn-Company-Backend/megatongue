@@ -30,8 +30,6 @@ Route::middleware(['throttle:freeTranslation'])->group(function () {
     Route::post('free-translatefile', [TranslatorController::class, 'translatefile']);
 });
 
-Route::post("translator", [MegaController::class, 'translator']);
-Route::post('translatefile', [MegaController::class, 'translatefile']);
 
 Route::post('/translatetext', function (Request $request) {
     event(new TranslationEvent($request->input('text')));
@@ -64,4 +62,8 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
 
     Route::get('getpaymentmethod', [PaymentController::class, 'getpaymentmethod']);
     Route::get('getsubscribplan', [PaymentController::class, 'getsubscribplan']);
+
+    Route::post("translator", [MegaController::class, 'translator']);
+    Route::post('translatefile', [MegaController::class, 'translatefile']);
+
 });
