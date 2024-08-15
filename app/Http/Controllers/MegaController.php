@@ -130,7 +130,7 @@ class MegaController extends Controller
             "q" => $request->q,
             "source" => $request->source,
             "target" => $request->target,
-            "format" => $request->format
+            "format" => $request->get('format')
         );
 
         $json_data = json_encode($data);
@@ -170,7 +170,7 @@ class MegaController extends Controller
         $history->text = $request->q;
         $history->source_language = $request->source;
         $history->destination_language = $request->target;
-        $history->format = $request->format;
+        $history->format = $request->get('format');
         $history->response = $translated_text;
 
 //         $user->history()->save($history);
@@ -325,7 +325,7 @@ class MegaController extends Controller
 
         // Check if the decoded_response contains the 'translatedText' key
         if (isset($decoded_response['translatedFileUrl'])) {
-            $translated_text = file_get_contents($decoded_response['translatedFileUrl']);
+            $translated_text = $this->file_get_contents_curl($decoded_response['translatedFileUrl']);
         } else {
             $translated_text = 'Translation not available.';
         }
@@ -463,4 +463,20 @@ class MegaController extends Controller
             ], 200);
         }
     }
+
+    function file_get_contents_curl($url) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+
+        $data = curl_exec($ch);
+        curl_close($ch);
+
+        return $data;
+    }
+
 }

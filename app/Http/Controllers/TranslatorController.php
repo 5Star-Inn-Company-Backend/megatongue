@@ -117,6 +117,12 @@ class TranslatorController extends Controller
             ]);
         }
 
+        return response()->json([
+            "status_code" => 403,
+            "message" => "Kindly login to use this",
+            "errors" => "Account required",
+        ]);
+
         $file = $request->file('file');
         $filePath = $file->getPathname();
         $fileMimeType = $file->getMimeType();
