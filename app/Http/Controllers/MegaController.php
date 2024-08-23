@@ -323,6 +323,13 @@ class MegaController extends Controller
 
         $decoded_response = json_decode($response, true);
 
+        if (isset($decoded_response['error'])){
+            return response()->json([
+                "status_code" => 422,
+                "message" => $decoded_response['error'],
+            ]);
+        }
+
         // Check if the decoded_response contains the 'translatedText' key
         if (isset($decoded_response['translatedFileUrl'])) {
             $translated_text = $this->file_get_contents_curl($decoded_response['translatedFileUrl']);
