@@ -326,13 +326,13 @@ class MegaController extends Controller
         if (isset($decoded_response['error'])){
             return response()->json([
                 "status_code" => 422,
-                "message" => $decoded_response['error'],
+                "message" => $decoded_response['error'].". Supported file formats: .txt, .odt, .odp, .docx, .pptx, .epub, .html",
             ]);
         }
 
         // Check if the decoded_response contains the 'translatedText' key
         if (isset($decoded_response['translatedFileUrl'])) {
-            $translated_text = $this->file_get_contents_curl($decoded_response['translatedFileUrl']);
+            $translated_text = $decoded_response['translatedFileUrl'];
         } else {
             $translated_text = 'Translation not available.';
         }
@@ -342,10 +342,7 @@ class MegaController extends Controller
         $data->source_language = $request->source;
         $data->destination_language = $request->target;
         $data->format = "file";
-        $data->response = $decoded_response['translatedFileUrl'];
-
-//             $user->history()->save($data);
-
+        $data->response = $translated_text;
 
         if ($user->history()->save($data)) {
             return response()->json([
