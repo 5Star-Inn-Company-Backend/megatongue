@@ -25,6 +25,8 @@ Route::post('forgotpass', [UserController::class, 'forgotPassword']);
 Route::get('resetpass', [UserController::class, 'resetpass']);
 Route::post('updatepassword', [UserController::class, 'updatepass']);
 
+Route::get("languages", [TranslatorController::class, 'languages']);
+
 Route::middleware(['throttle:freeTranslation'])->group(function () {
     Route::post("free-translator", [TranslatorController::class, 'translator']);
     Route::post('free-translatefile', [TranslatorController::class, 'translatefile']);

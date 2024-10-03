@@ -9,6 +9,42 @@ use Illuminate\Support\Facades\Validator;
 
 class TranslatorController extends Controller
 {
+    public function languages(Request $request)
+    {
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSLATOR_BASEURL', 'http://translator.cheapmailing.com.ng') . '/languages',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Cookie: session=edb08a19-057b-46e5-bd9e-00346901cf2e'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $decoded_response = json_decode($response, true);
+
+// Loop through each item and remove the "targets" key
+        foreach ($decoded_response as &$item) {
+            unset($item['targets']);
+        }
+
+        return response()->json([
+            "status_code" => 200,
+            "message" => $decoded_response,
+        ]);
+    }
     public function translator(Request $request)
     {
 
