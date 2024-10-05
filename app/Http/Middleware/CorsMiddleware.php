@@ -21,7 +21,7 @@ class CorsMiddleware
     {
         $response = $next($request);
 
-         $response->header('Access-Control-Allow-Origin', '*');
+         $response->header('Access-Control-Allow-Origin', env('FRONTEND_URL', 'http://localhost:3000'));
          $response->header('Access-Control-Allow-Methods', '*');
          $response->header('Access-Control-Allow-Headers', '*');
 
