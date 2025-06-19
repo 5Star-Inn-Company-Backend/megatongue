@@ -33,26 +33,6 @@ class MegaController extends Controller
         };
     }
 
-    public function pricing(Request $request)
-    {
-        $request->validate([
-            "name" => "required",
-            "amount" => "required",
-            "description" => "required",
-        ]);
-
-        $price = new pricing;
-        $price->name = $request->name;
-        $price->amount = $request->amount;
-        $price->description = $request->description;
-        $price->mode = $request->mode;
-        $price->save();
-
-        return response()->json([
-            "statusCode" => 200,
-            "message" => "Price has been updated successfully",
-        ]);
-    }
 
     /**
      * @OA\Post(

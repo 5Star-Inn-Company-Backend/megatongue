@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PricingController;
 use App\Http\Controllers\TranslatorController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -47,7 +48,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('apikey', [MegaController::class, 'apikey']);
-    Route::post('pricing', [MegaController::class, 'pricing']);
+    Route::post('pricing', [PricingController::class, 'pricing']);
+    Route::get('pricing', [PricingController::class, 'index']);
     Route::post('addreview', [MegaController::class, "addreview"]);
     Route::get('getreviews', [MegaController::class, 'getreviews']);
     Route::get('getapiusage', [MegaController::class, 'getapiusage']);
