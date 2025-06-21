@@ -40,8 +40,9 @@ Route::post('/translatetext', function (Request $request) {
     return response()->json(['message' => 'Text sent for translation']);
 });
 
-Route::post('/clear', function (Request $request) {
+Route::get('/clear', function (Request $request) {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
     return \Illuminate\Support\Facades\Artisan::call('cache:clear');
 });
 
