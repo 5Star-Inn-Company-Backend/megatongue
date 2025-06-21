@@ -40,6 +40,11 @@ Route::post('/translatetext', function (Request $request) {
     return response()->json(['message' => 'Text sent for translation']);
 });
 
+Route::post('/translatetext', function (Request $request) {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return \Illuminate\Support\Facades\Artisan::call('cache:clear');
+});
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
