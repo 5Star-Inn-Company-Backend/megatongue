@@ -40,7 +40,7 @@ Route::post('/translatetext', function (Request $request) {
     return response()->json(['message' => 'Text sent for translation']);
 });
 
-Route::post('/translatetext', function (Request $request) {
+Route::post('/clear', function (Request $request) {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     return \Illuminate\Support\Facades\Artisan::call('cache:clear');
 });
